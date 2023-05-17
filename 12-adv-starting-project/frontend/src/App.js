@@ -20,8 +20,10 @@
 // 7. Output the ID of the selected event on the EventDetailPage
 // BONUS: Add another (nested) layout route that adds the <EventNavigation> component above all /events... page components
 
-function App() {
-  return <div></div>;
-}
+const route = 15;
+
+const App = () => {
+  return <></>;
+};
 
 export default App;
