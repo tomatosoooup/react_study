@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLoaderData,
+  useSearchParams,
+  defer,
+  Await,
+} from "react-router-dom";
 import BlogFilter from "../components/BlogFilter";
+import { Suspense } from "react";
 
 const BlogPage = () => {
-  const [posts, setPosts] = useState([]);
-
+  const { posts } = useLoaderData();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const postQuery = searchParams.get("post") || "";
@@ -12,12 +17,6 @@ const BlogPage = () => {
   const latest = searchParams.has("latest");
 
   const startsFrom = latest ? 80 : 1;
-
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/posts")
-      .then((res) => res.json())
-      .then((data) => setPosts(data));
-  }, []);
 
   return (
     <>
@@ -29,17 +28,38 @@ const BlogPage = () => {
         setSearchParams={setSearchParams}
       />
       <Link to="/posts/new">Add new post</Link>
-      {posts
-        .filter(
-          (post) => post.title.includes(postQuery) && post.id >= startsFrom
-        )
-        .map((post) => (
-          <Link key={post.id} to={`/posts/${post.id}`}>
-            <li>{post.title}</li>
-          </Link>
-        ))}
+      <Suspense fallback={<p>Loading</p>}>
+        <Await resolve={posts}>
+          {(resolvedPosts) => (
+            <>
+              {resolvedPosts
+                .filter(
+                  (post) =>
+                    post.title.includes(postQuery) && post.id >= startsFrom
+                )
+                .map((post) => (
+                  <Link key={post.id} to={`/posts/${post.id}`}>
+                    <li>{post.title}</li>
+                  </Link>
+                ))}
+            </>
+          )}
+        </Await>
+      </Suspense>
     </>
   );
+};
+
+async function getPosts() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+
+  return res.json();
+}
+
+export const blogLoader = async ({ request, params }) => {
+  return defer({
+    posts: getPosts(),
+  });
 };
 
 export default BlogPage;
