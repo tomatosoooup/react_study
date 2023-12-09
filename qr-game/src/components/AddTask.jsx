@@ -17,6 +17,7 @@ import { AddIcon } from "@chakra-ui/icons";
 
 const AddTask = () => {
   const [text, setText] = useState("");
+  const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState(null);
   const [generatedLink, setGeneratedLink] = useState("");
 
@@ -27,13 +28,14 @@ const AddTask = () => {
       const { data } = await addObject({
         variables: {
           title: text,
+          description: description,
           photo_url: photo ? photo.name : null,
           completed: false,
         },
       });
 
       const qrCodeId = data.createQrCode.id;
-      const objectLink = `/object/${qrCodeId}`;
+      const objectLink = `/task/${qrCodeId}`;
 
       console.log(data);
 
@@ -60,6 +62,13 @@ const AddTask = () => {
           mb={4}
         />
 
+        <Input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          mb={4}
+        />
+
         <FormLabel>Выберите фотографию:</FormLabel>
         <InputGroup>
           <Input type="file" accept="image/*" onChange={handlePhotoUpload} />
@@ -70,9 +79,7 @@ const AddTask = () => {
               leftIcon={<AddIcon />}
               cursor="pointer"
               variant="outline"
-            >
-              Добавить
-            </Button>
+            ></Button>
           </InputRightElement>
         </InputGroup>
         <Button onClick={generateQRCode} mt={4} colorScheme="blue">

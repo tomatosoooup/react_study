@@ -7,12 +7,12 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AddTask />,
-    children: [
-      {
-        path: "task/:task_id",
-        element: <Task />,
-      },
-    ],
+    errorElement: <h2>error!</h2>,
+  },
+  {
+    path: "/task/:id",
+    element: <Task />,
+    errorElement: <h2>error 22!</h2>,
   },
 ]);
 
