@@ -9,11 +9,13 @@ const router = createBrowserRouter([
     path: "/",
     element: <Navbar />,
     errorElement: <h2>error!</h2>,
-  },
-  {
-    path: "/task/:id",
-    element: <Task />,
-    errorElement: <h2>error 22!</h2>,
+    children: [
+      { path: "/tasks/add", element: <AddTask /> },
+      {
+        path: "/task/:id",
+        element: <Task />,
+      },
+    ],
   },
 ]);
 

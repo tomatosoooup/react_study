@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import QRCode from "qrcode.react";
 
 import { useMutation } from "@apollo/client";
 import { ADD_OBJECT } from "../apollo/tasks";
@@ -11,14 +10,17 @@ import {
   FormLabel,
   Input,
   InputGroup,
+  Stack,
+  useColorMode,
 } from "@chakra-ui/react";
+import TasksList from "./TasksList";
 
 const AddTask = () => {
   const [text, setText] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
-  const [generatedLink, setGeneratedLink] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+
+  const { colorMode } = useColorMode();
 
   const [addObject] = useMutation(ADD_OBJECT);
 
@@ -32,13 +34,9 @@ const AddTask = () => {
           completed: false,
         },
       });
-
-      const qrCodeId = data.createQrCode.id;
-      const objectLink = `/task/${qrCodeId}`;
-
-      console.log(data);
-
-      setGeneratedLink(objectLink);
+      if (!data) {
+        return;
+      }
     } catch (error) {
       console.error("Ошибка при создании QR-кода:", error);
     }
@@ -54,8 +52,9 @@ const AddTask = () => {
         body: formData,
       });
 
-      const { url } = await response.json();
-      setImageUrl(url);
+      if (!response.ok) {
+        return;
+      }
     } catch (error) {
       console.error("Ошибка при загрузке изображения:", error);
     }
@@ -67,41 +66,64 @@ const AddTask = () => {
   };
 
   return (
-    <Box maxW="md" m="auto" p={4}>
-      <FormControl>
-        <FormLabel>Введите текст:</FormLabel>
-        <Input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          mb={4}
-          id="input-1"
-        />
+    <Stack direction={{ base: "column", lg: "row" }} spacing="4">
+      <Box
+        maxW={{ base: "100%", md: "75%", lg: "25%" }}
+        m={{ base: "auto", lg: "0" }}
+        p={4}
+        pt={{ base: 0, lg: 12 }}
+        ml={{ md: "auto", lg: 0 }}
+        // borderRight={{ base: "none", lg: "1px solid" }}
+        borderColor="gray.200"
+      >
+        <FormControl>
+          <FormLabel>Введите текст:</FormLabel>
+          <Input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            mb={4}
+            id="input-1"
+            _focus={{
+              borderColor: colorMode === "light" ? "blue.400" : "blue.200",
+              boxShadow:
+                colorMode === "light"
+                  ? "0 0 0 1px blue.400"
+                  : "0 0 0 1px blue.200",
+            }}
+            mode={colorMode}
+          />
 
-        <Input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          mb={4}
-          id="input-2"
-        />
+          <Input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            mb={4}
+            id="input-2"
+            _focus={{
+              borderColor: colorMode === "light" ? "blue.400" : "blue.200",
+              boxShadow:
+                colorMode === "light"
+                  ? "0 0 0 1px blue.400"
+                  : "0 0 0 1px blue.200",
+            }}
+            mode={colorMode}
+          />
 
-        <FormLabel>Выберите фотографию:</FormLabel>
-        <InputGroup>
-          <Input type="file" accept="image/*" onChange={handleImageUpload} />
-        </InputGroup>
-        <Button onClick={generateQRCode} mt={4} colorScheme="blue">
-          Создать QR
-        </Button>
+          <FormLabel>Выберите фотографию:</FormLabel>
+          <InputGroup>
+            <Input type="file" accept="image/*" onChange={handleImageUpload} />
+          </InputGroup>
+          <Button onClick={generateQRCode} mt={4} colorScheme="blue">
+            Создать QR
+          </Button>
+        </FormControl>
+      </Box>
 
-        {generatedLink && (
-          <Box mt={4}>
-            <QRCode value={generatedLink} />
-          </Box>
-        )}
-        {imageUrl && <img src={imageUrl} alt="uploaded" />}
-      </FormControl>
-    </Box>
+      <Box flex={1} px={{ base: 4, md: 0 }}>
+        <TasksList w={{ base: "100%", md: "75%" }} mx="auto" mt={8} />
+      </Box>
+    </Stack>
   );
 };
 

@@ -29,3 +29,15 @@ export const GET_OBJECT = gql`
     }
   }
 `;
+
+export const ALL_OBJECTS = gql`
+  query allQrCodes {
+    getAllCodes: allQrCodes {
+      id
+      title
+      description
+      photo_url
+      completed
+    }
+  }
+`;
