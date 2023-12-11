@@ -11,15 +11,14 @@ import {
   FormLabel,
   Input,
   InputGroup,
-  InputRightElement,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
 
 const AddTask = () => {
   const [text, setText] = useState("");
   const [description, setDescription] = useState("");
-  const [photo, setPhoto] = useState(null);
+  const [image, setImage] = useState(null);
   const [generatedLink, setGeneratedLink] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   const [addObject] = useMutation(ADD_OBJECT);
 
@@ -29,7 +28,7 @@ const AddTask = () => {
         variables: {
           title: text,
           description: description,
-          photo_url: photo ? photo.name : null,
+          photo_url: image ? image.name : null,
           completed: false,
         },
       });
@@ -43,12 +42,28 @@ const AddTask = () => {
     } catch (error) {
       console.error("Ошибка при создании QR-кода:", error);
     }
+
+    if (!image) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", image);
+
+      const response = await fetch("http://localhost:3001/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const { url } = await response.json();
+      setImageUrl(url);
+    } catch (error) {
+      console.error("Ошибка при загрузке изображения:", error);
+    }
   };
 
-  // Обработчик загрузки фотографии
-  const handlePhotoUpload = (event) => {
-    const uploadedPhoto = event.target.files[0];
-    setPhoto(uploadedPhoto);
+  const handleImageUpload = (event) => {
+    const uploadedImage = event.target.files[0];
+    setImage(uploadedImage);
   };
 
   return (
@@ -60,6 +75,7 @@ const AddTask = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
           mb={4}
+          id="input-1"
         />
 
         <Input
@@ -67,20 +83,12 @@ const AddTask = () => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           mb={4}
+          id="input-2"
         />
 
         <FormLabel>Выберите фотографию:</FormLabel>
         <InputGroup>
-          <Input type="file" accept="image/*" onChange={handlePhotoUpload} />
-          <InputRightElement>
-            <Button
-              as="label"
-              htmlFor="fileInput"
-              leftIcon={<AddIcon />}
-              cursor="pointer"
-              variant="outline"
-            ></Button>
-          </InputRightElement>
+          <Input type="file" accept="image/*" onChange={handleImageUpload} />
         </InputGroup>
         <Button onClick={generateQRCode} mt={4} colorScheme="blue">
           Создать QR
@@ -91,6 +99,7 @@ const AddTask = () => {
             <QRCode value={generatedLink} />
           </Box>
         )}
+        {imageUrl && <img src={imageUrl} alt="uploaded" />}
       </FormControl>
     </Box>
   );

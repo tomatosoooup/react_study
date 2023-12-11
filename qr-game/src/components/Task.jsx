@@ -36,26 +36,23 @@ const Task = () => {
     <Card maxW="sm">
       <CardBody>
         <Image
-          src={`images/${objectData && objectData.photo_url}`}
+          src={`/images/${objectData && objectData.photo_url}`}
           alt="Green double couch with wooden legs"
           borderRadius="lg"
         />
         <Stack mt="6" spacing="3">
           <Heading size="md">{objectData && objectData.title}</Heading>
-          <Text>
-            {objectData && objectData.description}{" "}
-            {objectData && objectData.photo_url}
-          </Text>
+          <Text>{objectData && objectData.description}</Text>
         </Stack>
       </CardBody>
       <Divider />
       <CardFooter>
         <ButtonGroup spacing="2">
           <Button variant="solid" colorScheme="blue">
-            Buy now
+            to do
           </Button>
           <Button variant="ghost" colorScheme="blue">
-            Add to cart
+            to do
           </Button>
         </ButtonGroup>
       </CardFooter>
